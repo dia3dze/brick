@@ -26,15 +26,18 @@ SECTION "Code", ROM0[$150]
 ;; Start Main
 
 Ready:
+        ld sp, $fffe
         call WaitVBlank
         DisableLCD
         call CopySpritesToVRAM
+        call ClearOAM
         call ReadyOAM
         EnableLCD
         InitDisplayRegisters
         jp Process
 
 Process:
+        halt
         jp Process
 
 ;; End Main
@@ -45,11 +48,21 @@ ReadyOAM:
         ld [hli], a
         ld a, 70
         ld [hli], a
-        ld a, 16
+        ld a, 1
         ld [hli], a
         ld a, 0
         ld [hli], a
         ret
+
+ClearOAM:
+       ld hl, _OAMRAM
+       ld b, 40 * 4
+.loop
+       ld a, 0
+       ld [hli], a
+       dec b
+       jp nz, .loop
+       ret
 
 
 CopySpritesToVRAM:
