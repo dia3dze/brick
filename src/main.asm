@@ -22,6 +22,13 @@ SECTION "Header", ROM0[$100]
         jp Ready
         ds $150 - @, 0  
 
+SECTION "Data", WRAM0[$C000]
+
+PositionPlatformX: ds 1
+PositionPlatformY: ds 1
+PositionBallX: ds 1
+PositionBallY: ds 1
+
 SECTION "Code", ROM0[$150]
 ;; Start Main
 
@@ -29,6 +36,7 @@ Ready:
         ld sp, $fffe
         call WaitVBlank
         DisableLCD
+        call InitializeData
         call CopySpritesToVRAM
         call ClearOAM
         call ReadyOAM
@@ -44,9 +52,11 @@ Process:
 
 ReadyOAM:
         ld hl, _OAMRAM
-        ld a, 80
+        ld a, [PositionPlatformY]
+        add OFFSET_Y
         ld [hli], a
-        ld a, 70
+        ld a, [PositionPlatformX]
+        add OFFSET_X
         ld [hli], a
         ld a, 1
         ld [hli], a
@@ -63,6 +73,17 @@ ClearOAM:
        dec b
        jp nz, .loop
        ret
+
+InitializeData:
+        ld a, PLATFORM_START_POSITION_X
+        ld [PositionPlatformX], a
+        ld a, PLATFORM_START_POSITION_Y
+        ld [PositionPlatformY], a
+        ld a, BALL_START_POSITION_X
+        ld [PositionBallX], a
+        ld a, BALL_START_POSITION_X
+        ld [PositionBallY], a
+        ret
 
 
 CopySpritesToVRAM:
