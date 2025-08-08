@@ -26,8 +26,8 @@ SECTION "Data", WRAM0[$C000]
 
 PositionPlatformX: ds 1
 PositionPlatformY: ds 1
-PositionBallX: ds 1
-PositionBallY: ds 1
+PositionBallX:     ds 1
+PositionBallY:     ds 1
 
 SECTION "Code", ROM0[$150]
 ;; Start Main
@@ -46,9 +46,53 @@ Ready:
 
 Process:
         halt
+        call WaitVBlank
+        call ReadInput
         jp Process
 
 ;; End Main
+
+ReadInput:
+        ld a, %00100000
+        ld [rP1], a
+        nop
+        nop
+        ld a, [rP1]
+        cpl
+        and BTN_LEFT | BTN_RIGHT
+        jr z, .checkButtons
+        bit 1, a
+        call nz, MoveLeft
+        bit 0, a
+        call nz, MoveRight
+
+.checkButtons:
+        ld a, %00010000
+        ld [rP1], a
+        nop
+        nop
+        ld a, [rP1]
+        cpl
+        and BTN_B
+        bit 5, a
+        call nz, StartGame
+        ret
+
+MoveLeft:
+        ld a, [PositionPlatformX]
+        sub a, PLATFORM_SPEED
+        ld [PositionPlatformX], a
+        ret
+
+MoveRight:
+        ld a, [PositionPlatformX]
+        add a, PLATFORM_SPEED
+        ld [PositionPlatformX], a
+        ret
+
+StartGame:
+        ; I'll add state later
+        ret
 
 ReadyOAM:
         ld hl, _OAMRAM
@@ -65,14 +109,14 @@ ReadyOAM:
         ret
 
 ClearOAM:
-       ld hl, _OAMRAM
-       ld b, 40 * 4
+        ld hl, _OAMRAM
+        ld b, 40 * 4
 .loop
-       ld a, 0
-       ld [hli], a
-       dec b
-       jp nz, .loop
-       ret
+        ld a, 0
+        ld [hli], a
+        dec b
+        jp nz, .loop
+        ret
 
 InitializeData:
         ld a, PLATFORM_START_POSITION_X
@@ -81,26 +125,25 @@ InitializeData:
         ld [PositionPlatformY], a
         ld a, BALL_START_POSITION_X
         ld [PositionBallX], a
-        ld a, BALL_START_POSITION_X
+        ld a, BALL_START_POSITION_Y
         ld [PositionBallY], a
         ret
 
-
 CopySpritesToVRAM:
-    ld hl, sprite_ball
-    ld de, _VRAM
-    ld bc, 48
+        ld hl, sprite_ball
+        ld de, _VRAM
+        ld bc, 48
 
 .loop:
-    ld a, [hl]
-    ld [de], a
-    inc hl
-    inc de
-    dec bc
-    ld a, b
-    or c
-    jp nz, .loop
-    ret
+        ld a, [hl]
+        ld [de], a
+        inc hl
+        inc de
+        dec bc
+        ld a, b
+        or c
+        jp nz, .loop
+        ret
         
 WaitNotVBlank:
         ld a, [rLY]
@@ -115,6 +158,6 @@ WaitVBlank:
         ret
 
 SECTION "Assets", ROM0[$800]
-sprite_ball: incbin "assets/sprites/ball.bin"
+sprite_ball:     incbin "assets/sprites/ball.bin"
 sprite_platform: incbin "assets/sprites/platform.bin"
-sprite_brick: incbin "assets/sprites/brick.bin"
+sprite_brick:    incbin "assets/sprites/brick.bin"
