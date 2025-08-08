@@ -39,43 +39,51 @@ Ready:
         call InitializeData
         call CopySpritesToVRAM
         call ClearOAM
-        call ReadyOAM
+        call LoadOAM
         EnableLCD
         InitDisplayRegisters
         jp Process
 
 Process:
-        halt
         call WaitVBlank
         call ReadInput
+        halt
+        DisableLCD
+        call LoadOAM
+        EnableLCD
         jp Process
 
 ;; End Main
 
 ReadInput:
-        ld a, %00100000
+        ld a, BTN_B
         ld [rP1], a
         nop
         nop
         ld a, [rP1]
         cpl
-        and BTN_LEFT | BTN_RIGHT
+        and (BTN_LEFT | BTN_RIGHT)
         jr z, .checkButtons
+
         bit 1, a
         call nz, MoveLeft
         bit 0, a
         call nz, MoveRight
 
 .checkButtons:
-        ld a, %00010000
+        ld a, BTN_A
         ld [rP1], a
         nop
         nop
         ld a, [rP1]
         cpl
         and BTN_B
+        jr z, .done
+
         bit 5, a
         call nz, StartGame
+
+.done:
         ret
 
 MoveLeft:
@@ -94,7 +102,7 @@ StartGame:
         ; I'll add state later
         ret
 
-ReadyOAM:
+LoadOAM:
         ld hl, _OAMRAM
         ld a, [PositionPlatformY]
         add OFFSET_Y
