@@ -29,6 +29,7 @@ PositionPlatformY: ds 1
 PositionBallX:     ds 1
 PositionBallY:     ds 1
 joyState:          ds 1
+GameState:         ds 1
 
 SECTION "Code", ROM0[$150]
 ;; Start Main
@@ -36,6 +37,7 @@ SECTION "Code", ROM0[$150]
 Ready:
         ld sp, $FFFE
         call WaitVBlank
+        call ResetGameState
         DisableLCD
         call InitializeData
         call CopySpritesToVRAM
@@ -50,12 +52,40 @@ Process:
         call WaitNotVBlank
         call WaitVBlank
         call ReadInput
-        call MovePlatform
+        call CheckGameState
+
+        ld a, [GameState]
+        cp 1
+        call z, StateRunning
+        call nz, StateIdle
+
         call LoadOAM
         jp Process
 
+
 ;; End Main
 
+StateIdle:
+        ret
+
+StateRunning:
+        call MovePlatform
+
+CheckGameState:
+        ld a, [joyState]
+        bit 2, a
+        call z, SetGameState
+        ret
+
+SetGameState:
+        ld a, 1
+        ld [GameState], a
+        ret
+
+ResetGameState:
+        ld a, 0
+        ld [GameState], a
+        ret
 
 MovePlatform:
         ld a, [joyState]
@@ -99,10 +129,6 @@ MoveRight:
         ld a, [PositionPlatformX]
         add PLATFORM_SPEED
         ld [PositionPlatformX], a
-        ret
-
-StartGame:
-        ; I'll add state later
         ret
 
 LoadOAM:
