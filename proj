@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+ 
+mkdir -p build
+
+run() {
+  rgbasm -o build/main.o src/main.asm
+  rgblink -o build/game.gb build/main.o
+  rgbfix -v -p 0 build/game.gb
+  WINEPREFIX=~/.wine32 wine bgb.exe build/game.gb
+}
+
+clean() {
+  rm -rf build
+}
+
+case "$1" in
+  run) run ;;
+  clean) clean ;;
+  *) echo "Usage: $0 {run|clean}" ;;
+esac

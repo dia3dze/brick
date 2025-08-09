@@ -1,0 +1,5 @@
+- [ ] Place bricks.
+- [ ] Add number randomizer function.
+- [ ] Add variables for moving ball at random location on game start.
+- [ ] Add borders for ball.
+- [ ] Add borders for platform.
