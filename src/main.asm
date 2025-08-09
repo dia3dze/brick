@@ -28,6 +28,7 @@ PositionPlatformX: ds 1
 PositionPlatformY: ds 1
 PositionBallX:     ds 1
 PositionBallY:     ds 1
+joyState:          ds 1
 
 SECTION "Code", ROM0[$150]
 ;; Start Main
@@ -47,43 +48,30 @@ Ready:
 Process:
         call WaitVBlank
         call ReadInput
-        halt
-        DisableLCD
+        call MovePlatform
         call LoadOAM
-        EnableLCD
+        halt
         jp Process
 
 ;; End Main
 
-ReadInput:
-        ld a, BTN_B
-        ld [rP1], a
-        nop
-        nop
-        ld a, [rP1]
-        cpl
-        and (BTN_LEFT | BTN_RIGHT)
-        jr z, .checkButtons
-
+MovePlatform:
+        ld a, [joyState]
         bit 1, a
-        call nz, MoveLeft
+        call z, MoveLeft
         bit 0, a
-        call nz, MoveRight
+        call z, MoveRight        
+        ret
 
-.checkButtons:
-        ld a, BTN_A
+ReadInput:
+        ld a, $EF
         ld [rP1], a
         nop
         nop
+        nop
         ld a, [rP1]
-        cpl
-        and BTN_B
-        jr z, .done
-
-        bit 5, a
-        call nz, StartGame
-
-.done:
+        and $0F
+        ld [joyState], a
         ret
 
 MoveLeft:
