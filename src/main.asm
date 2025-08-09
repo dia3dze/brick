@@ -34,7 +34,7 @@ SECTION "Code", ROM0[$150]
 ;; Start Main
 
 Ready:
-        ld sp, $fffe
+        ld sp, $FFFE
         call WaitVBlank
         DisableLCD
         call InitializeData
@@ -43,30 +43,45 @@ Ready:
         call LoadOAM
         EnableLCD
         InitDisplayRegisters
+        ei
         jp Process
 
 Process:
+        call WaitNotVBlank
         call WaitVBlank
         call ReadInput
         call MovePlatform
         call LoadOAM
-        halt
         jp Process
 
 ;; End Main
 
+
 MovePlatform:
         ld a, [joyState]
         bit 1, a
-        call z, MoveLeft
-        bit 0, a
-        call z, MoveRight        
+        jr nz, CheckRight
+        call MoveLeft
         ret
 
+CheckRight:
+        bit 0, a
+        call z, MoveRight
+        ret
+
+
 ReadInput:
-        ld a, $EF
+        ; ld a, $EF
+        ; ld [rP1], a
+        ; nop
+        ; nop
+        ; nop
+        ; ld a, [rP1]
+        ; and $0F
+        ; ld [joyState], a
+        ; ret
+        ld a, %00100000
         ld [rP1], a
-        nop
         nop
         nop
         ld a, [rP1]
@@ -76,13 +91,13 @@ ReadInput:
 
 MoveLeft:
         ld a, [PositionPlatformX]
-        sub a, PLATFORM_SPEED
+        sub PLATFORM_SPEED
         ld [PositionPlatformX], a
         ret
 
 MoveRight:
         ld a, [PositionPlatformX]
-        add a, PLATFORM_SPEED
+        add PLATFORM_SPEED
         ld [PositionPlatformX], a
         ret
 
@@ -102,6 +117,17 @@ LoadOAM:
         ld [hli], a
         ld a, 0
         ld [hli], a
+
+        ld a, [PositionBallY]
+        add OFFSET_Y
+        ld [hli], a
+        ld a, [PositionBallX]
+        add OFFSET_X
+        ld [hli], a
+        ld a, 0
+        ld [hli], a
+        ld a, 0
+        ld[hli], a
         ret
 
 ClearOAM:
