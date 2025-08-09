@@ -32,8 +32,8 @@ joyState:          ds 1
 GameState:         ds 1
 
 SECTION "Code", ROM0[$150]
-;; Start Main
 
+;; Start Gameloop
 Ready:
         ld sp, $FFFE
         call WaitVBlank
@@ -57,19 +57,31 @@ Process:
         ld a, [GameState]
         cp 1
         call z, StateRunning
+        ld a, [GameState]
+        cp 1
         call nz, StateIdle
 
         call LoadOAM
         jp Process
 
-
-;; End Main
-
 StateIdle:
+        call MovePlatform
+        call BallChasePlatform
         ret
 
 StateRunning:
         call MovePlatform
+        ret
+
+;; End Gameloop
+
+BallChasePlatform:
+        ld a, [PositionPlatformX]
+        ld [PositionBallX], a
+        ld a, [PositionPlatformY]
+        sub 2
+        ld [PositionBallY], a
+        ret
 
 CheckGameState:
         ld a, [joyState]
