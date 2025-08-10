@@ -134,13 +134,19 @@ ReadInput:
 MoveLeft:
         ld a, [PositionPlatformX]
         sub PLATFORM_SPEED
+        jr nc, .update
+        ld a, SCREEN_LIMIT_LEFT
+.update:
         ld [PositionPlatformX], a
         ret
 
 MoveRight:
         ld a, [PositionPlatformX]
         add PLATFORM_SPEED
+        cp SCREEN_LIMIT_RIGHT
+        jr nc, .return
         ld [PositionPlatformX], a
+.return:
         ret
 
 LoadOAM:
