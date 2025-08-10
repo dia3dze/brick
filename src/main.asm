@@ -30,6 +30,7 @@ PositionBallX:     ds 1
 PositionBallY:     ds 1
 joyState:          ds 1
 GameState:         ds 1
+BrickMatrix:       ds 64
 
 SECTION "Code", ROM0[$150]
 
@@ -113,15 +114,6 @@ CheckRight:
 
 
 ReadInput:
-        ; ld a, $EF
-        ; ld [rP1], a
-        ; nop
-        ; nop
-        ; nop
-        ; ld a, [rP1]
-        ; and $0F
-        ; ld [joyState], a
-        ; ret
         ld a, %00100000
         ld [rP1], a
         nop
@@ -151,6 +143,7 @@ MoveRight:
 
 LoadOAM:
         ld hl, _OAMRAM
+
         ld a, [PositionPlatformY]
         add OFFSET_Y
         ld [hli], a
@@ -171,7 +164,31 @@ LoadOAM:
         ld a, 0
         ld [hli], a
         ld a, 0
-        ld[hli], a
+        ld [hli], a
+
+        ld de, BrickMatrix
+        ld c, NUM_BRICKS
+
+LoadOAM_Loop:
+        ld a, [de]
+        inc de
+        add OFFSET_Y
+        ld [hli], a
+
+        ld a, [de]
+        inc de
+        add OFFSET_X
+        ld [hli], a
+
+        ld a, 2
+        ld [hli], a
+
+        ld a, 0
+        ld [hli], a
+
+        dec c
+        jr nz, LoadOAM_Loop
+
         ret
 
 ClearOAM:
@@ -193,6 +210,19 @@ InitializeData:
         ld [PositionBallX], a
         ld a, BALL_START_POSITION_Y
         ld [PositionBallY], a
+
+        ld b, 64
+        ld hl, BrickPositions
+        ld de, BrickMatrix
+
+        .copyLoop:
+        ld a, [hl]
+        ld [de], a
+        inc hl
+        inc de
+        dec b
+        jr nz, .copyLoop
+
         ret
 
 CopySpritesToVRAM:
@@ -227,3 +257,6 @@ SECTION "Assets", ROM0[$800]
 sprite_ball:     incbin "assets/sprites/ball.bin"
 sprite_platform: incbin "assets/sprites/platform.bin"
 sprite_brick:    incbin "assets/sprites/brick.bin"
+BrickPositions:
+        db 0, 8, 0, 24, 0, 40, 0, 56, 0, 72, 0, 88, 0, 104, 0, 120, 0, 136, 0, 152
+        db 16, 8, 16, 24, 16, 40, 16, 56, 16, 72, 16, 88, 16, 104, 16, 120, 16, 136, 16, 152
