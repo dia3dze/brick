@@ -76,9 +76,31 @@ StateIdle:
 StateRunning:
         call MovePlatform
         call MoveBall
+        call BallCheckWallCollision
         ret
 
 ;; End Gameloop
+
+BallCheckWallCollision:
+        ld a, [PositionBallX]
+        cp SCREEN_LIMIT_LEFT
+        jr c, .changeDirectionRight
+
+        cp SCREEN_LIMIT_RIGHT
+        jr nc, .changeDirectionLeft
+
+        ret
+
+        .changeDirectionRight:
+        ld a, 1
+        ld [BallDirectionX], a
+        ret
+
+        .changeDirectionLeft:
+        ld a, $FF
+        ld [BallDirectionX], a
+        ret
+       
 
 BallChasePlatform:
         ld a, [PositionPlatformX]

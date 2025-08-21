@@ -1,8 +1,14 @@
 - [x] Place bricks.
 - [x] Add number randomizer function.
-- [ ] Add variables for moving ball at random location on game start.
-- [ ] Add borders for ball.
+- [x] Add variables for moving ball at random location on game start.
+- [x] Add borders for ball.
 - [x] Add borders for platform.
+- [ ] Add top border for ball.
+- [ ] Make bricks destructable.
+- [ ] Make bricks collidable.
+- [ ] Make platform collidable.
+- [ ] Reset state to idle when ball falls down.
+- [ ] Add proper game reset in lose case.
 
 ---
 
