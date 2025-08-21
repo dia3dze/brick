@@ -3,7 +3,7 @@
 - [x] Add variables for moving ball at random location on game start.
 - [x] Add borders for ball.
 - [x] Add borders for platform.
-- [ ] Add top border for ball.
+- [x] Add top border for ball.
 - [ ] Make bricks destructable.
 - [ ] Make bricks collidable.
 - [ ] Make platform collidable.
@@ -12,4 +12,4 @@
 
 ---
 
-possible bug at U input randomizing ball speed every time.
+possible bug at U input randomizing ball speed every time. --solved.

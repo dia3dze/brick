@@ -77,15 +77,29 @@ StateRunning:
         call MovePlatform
         call MoveBall
         call BallCheckWallCollision
+        call BallCheckCeilingCollision
         ret
 
 ;; End Gameloop
+
+BallCheckCeilingCollision:
+        ld a, [PositionBallY]
+        cp SCREEN_LIMIT_CEILING
+        jr c, .changeDirectionDown
+        ret
+
+        .changeDirectionDown:
+        ld a, 1
+        ld [BallDirectionY], a
+        ret
+
 
 BallCheckWallCollision:
         ld a, [PositionBallX]
         cp SCREEN_LIMIT_LEFT
         jr c, .changeDirectionRight
 
+        ld a, [PositionBallX]
         cp SCREEN_LIMIT_RIGHT
         jr nc, .changeDirectionLeft
 
