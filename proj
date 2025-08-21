@@ -7,7 +7,7 @@ run() {
   rgbasm -o build/main.o src/main.asm
   rgblink -o build/game.gb build/main.o
   rgbfix -v -p 0 build/game.gb
-  WINEPREFIX=~/.wine32 wine bgb.exe build/game.gb
+  WINEPREFIX=~/.wine32 wine tools/bgb.exe build/game.gb
 }
 
 clean() {

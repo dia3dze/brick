@@ -30,6 +30,9 @@ PositionBallX:     ds 1
 PositionBallY:     ds 1
 joyState:          ds 1
 GameState:         ds 1
+Randi:             ds 1
+BallDirectionX:    ds 1
+BallDirectionY:    ds 1
 BrickMatrix:       ds 64
 
 SECTION "Code", ROM0[$150]
@@ -72,6 +75,7 @@ StateIdle:
 
 StateRunning:
         call MovePlatform
+        call MoveBall
         ret
 
 ;; End Gameloop
@@ -91,8 +95,49 @@ CheckGameState:
         ret
 
 SetGameState:
+        ld a, [GameState]
+        or a
+        ret nz
+
         ld a, 1
         ld [GameState], a
+        call GetRandomNumber
+        ret
+
+GetRandomNumber:
+        ld a, [rDIV]
+        and %00000011
+
+        cp %11
+        jr z, .one
+        cp %01
+        jr z, .minusone
+        cp %00
+        jr z, .zero
+
+        .one:
+        ld a, 1
+        ld [Randi], a
+        call SetRandomBallDirection
+        ret
+
+        .minusone:
+        ld a, $FF
+        ld [Randi], a
+        call SetRandomBallDirection
+        ret
+
+        .zero:
+        ld a, 0
+        ld [Randi], a
+        call SetRandomBallDirection
+        ret
+
+SetRandomBallDirection:
+        ld a, [Randi]
+        ld [BallDirectionX], a
+        ld a, $FF
+        ld [BallDirectionY], a
         ret
 
 ResetGameState:
@@ -140,6 +185,22 @@ MoveRight:
         ld [PositionPlatformX], a
 .return:
         ret
+
+MoveBall:
+        ld a, [PositionBallX]
+        ld b, a
+        ld a, [BallDirectionX]
+        add b
+        ld [PositionBallX], a
+
+        ld a, [PositionBallY]
+        ld b, a
+        ld a, [BallDirectionY]
+        add b
+        ld [PositionBallY], a
+
+        ret
+
 
 LoadOAM:
         ld hl, _OAMRAM
