@@ -78,9 +78,52 @@ StateRunning:
         call MoveBall
         call BallCheckWallCollision
         call BallCheckCeilingCollision
+        call BallCheckPlatformCollision
         ret
 
 ;; End Gameloop
+
+ChangeBallDirectionToUp:
+        ld a, $FF
+        ld [BallDirectionY], a
+        ret
+
+BallCheckPlatformCollision:
+        .checkForCollisionY:
+        ld a, [PositionBallY]
+        ld b, BALL_COLLISION_OFFSET_Y
+        add b
+        ld c, a
+        ld a, [PositionPlatformY]
+        ld b, PLATFORM_COLLISION_OFFSET_Y
+        add b
+        cp c
+        jr z, .checkForCollisionXLeft
+        ret
+
+        .checkForCollisionXLeft:
+        ld a, [PositionPlatformX]
+        ld b, PLATFORM_COLLISION_OFFSET_X
+        sub b
+        ld c, a
+        ld a, [PositionBallX]
+        cp c
+        jr nc, .checkForCollisionXRight
+        ret
+
+        .checkForCollisionXRight:
+        ld a, SPRITE_WIDTH
+        ld b, PLATFORM_COLLISION_OFFSET_X
+        add b
+        ld b, a
+        ld a, [PositionPlatformX]
+        add b
+        ld c, a
+        ld a, [PositionBallX]
+        cp c
+        call c, ChangeBallDirectionToUp
+        ret
+        
 
 BallCheckCeilingCollision:
         ld a, [PositionBallY]
@@ -355,5 +398,5 @@ sprite_ball:     incbin "assets/sprites/ball.bin"
 sprite_platform: incbin "assets/sprites/platform.bin"
 sprite_brick:    incbin "assets/sprites/brick.bin"
 BrickPositions:
-        db 0, 8, 0, 24, 0, 40, 0, 56, 0, 72, 0, 88, 0, 104, 0, 120, 0, 136, 0, 152
-        db 16, 8, 16, 24, 16, 40, 16, 56, 16, 72, 16, 88, 16, 104, 16, 120, 16, 136, 16, 152
+        db 0, 4, 0, 20, 0, 36, 0, 52, 0, 68, 0, 84, 0, 100, 0, 116, 0, 132, 0, 148
+        db 16, 4, 16, 20, 16, 36, 16, 52, 16, 68, 16, 84, 16, 100, 16, 116, 16, 132, 16, 148
