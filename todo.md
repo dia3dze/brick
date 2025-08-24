@@ -9,7 +9,7 @@
 - [ ] Make bricks destructable.
 - [ ] Make bricks collidable.
 - [x] Make platform collidable.
-- [ ] Reset state to idle when ball falls down.
+- [x] Reset state to idle when ball falls down.
 - [ ] Add proper game reset in lose case.
 
 ---

@@ -79,13 +79,40 @@ StateRunning:
         call BallCheckWallCollision
         call BallCheckCeilingCollision
         call BallCheckPlatformCollision
+        call BallCheckDeath
         ret
 
 ;; End Gameloop
 
+BallCheckDeath:
+        ld a, [PositionBallY]
+        ld b, SCREEN_LIMIT_FLOOR
+        cp b
+        jr nc, .die
+        ret
+        .die:
+        ld a, 0
+        ld [GameState], a
+        ret
+
 ChangeBallDirectionToUp:
         ld a, $FF
         ld [BallDirectionY], a
+        ret
+
+ChangeBallDirectionToDown:
+        ld a, $01
+        ld [BallDirectionY], a
+        ret
+
+ChangeBallDirectionToLeft:
+        ld a, $FF
+        ld [BallDirectionX], a
+        ret
+
+ChangeBallDirectionToRight:
+        ld a, $01
+        ld [BallDirectionX], a
         ret
 
 BallCheckPlatformCollision:
